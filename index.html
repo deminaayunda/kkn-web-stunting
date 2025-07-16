@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Skrining Stunting - Desa Kaliprau</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Google Fonts: Poppins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        main {
+            flex-grow: 1;
+        }
+        /* Kustomisasi warna sesuai palet desa */
+        .primary-green { background-color: #65B741; }
+        .primary-orange { color: #F28500; }
+        .form-input {
+            border: 1px solid #D1D5DB;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        .form-input:focus {
+            border-color: #65B741;
+            box-shadow: 0 0 0 2px rgba(101, 183, 65, 0.3);
+            outline: none;
+        }
+        .input-error {
+            border-color: #EF4444; /* red-500 */
+        }
+    </style>
+</head>
+<body class="bg-[#F5F5DC]">
+
+    <main>
+        <div class="container mx-auto p-4 md:p-8 max-w-2xl">
+            
+            <!-- Header -->
+            <header class="text-center mb-8">
+                <img src="images/logo_kaliprau.png" alt="Logo Desa Kaliprau" class="h-16 mx-auto mb-4">
+                <h1 class="text-3xl md:text-4xl font-bold primary-orange">Kalkulator Skrining Stunting</h1>
+                <p class="text-lg text-[#3C3C3C] mt-2">Alat bantu untuk deteksi dini stunting pada anak usia 0-60 bulan.</p>
+            </header>
+
+            <!-- Form Kalkulator -->
+            <div class="bg-white p-6 md:p-8 rounded-xl shadow-lg">
+                <form id="stunting-form" novalidate>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Nama Anak -->
+                        <div>
+                            <label for="nama" class="block text-sm font-semibold text-gray-700 mb-2">Nama Anak (Opsional)</label>
+                            <input type="text" id="nama" class="form-input w-full px-4 py-2 rounded-lg" placeholder="Contoh: Budi">
+                        </div>
+
+                        <!-- Usia Anak -->
+                        <div>
+                            <label for="usia" class="block text-sm font-semibold text-gray-700 mb-2">Usia (Bulan)</label>
+                            <input type="number" id="usia" min="0" max="60" class="form-input w-full px-4 py-2 rounded-lg" placeholder="0 - 60" required>
+                            <p id="warning-usia" class="text-red-500 text-sm mt-1 hidden">Pilih kendaraan terlebih dahulu!</p>
+                        </div>
+
+                        <!-- Jenis Kelamin -->
+                        <div>
+                            <label for="gender" class="block text-sm font-semibold text-gray-700 mb-2">Jenis Kelamin</label>
+                            <select id="gender" class="form-input w-full px-4 py-2 rounded-lg" required>
+                                <option value="" disabled selected>Pilih Jenis Kelamin</option>
+                                <option value="laki">Laki-laki</option>
+                                <option value="perempuan">Perempuan</option>
+                            </select>
+                            <p id="warning-gender" class="text-red-500 text-sm mt-1 hidden">Pilih kendaraan terlebih dahulu!</p>
+                        </div>
+
+                        <!-- Tinggi Badan -->
+                        <div>
+                            <label for="tinggi" class="block text-sm font-semibold text-gray-700 mb-2">Tinggi / Panjang Badan (cm)</label>
+                            <input type="number" step="0.1" id="tinggi" min="0" class="form-input w-full px-4 py-2 rounded-lg" placeholder="Contoh: 75.5" required>
+                        </div>
+                        <p id="warning-tinggi" class="text-red-500 text-sm mt-1 hidden">Pilih kendaraan terlebih dahulu!</p>
+                    </div>
+
+                    <!-- Tombol Hitung -->
+                    <div class="mt-8">
+                        <button type="submit" class="w-full primary-green text-white font-bold py-3 px-6 rounded-lg text-lg hover:bg-opacity-90 transition-all duration-300 flex items-center justify-center space-x-2">
+                            <i data-lucide="calculator" class="h-6 w-6"></i>
+                            <span>Cek Status Gizi</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Hasil Kalkulator (Tersembunyi) -->
+            <div id="hasil-container" class="mt-8 bg-white p-6 md:p-8 rounded-xl shadow-lg hidden">
+                <h2 class="text-2xl font-bold text-center mb-4">Hasil Skrining</h2>
+                <div id="hasil-content" class="text-center">
+                    <!-- Konten hasil akan dimasukkan oleh JavaScript -->
+                </div>
+                <button id="reset-button" class="w-full mt-6 bg-gray-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-gray-600 transition-colors">
+                    Hitung Ulang
+                </button>
+            </div>
+
+            <!-- Disclaimer -->
+            <div class="mt-8 text-center text-sm text-gray-600 p-4 bg-yellow-100 border border-yellow-300 rounded-lg">
+                <p><strong class="font-bold">Penting:</strong> Kalkulator ini adalah alat skrining awal dan bukan pengganti diagnosis medis. Untuk penilaian lebih lanjut, selalu konsultasikan dengan Bidan Desa, petugas gizi, atau dokter anak.</p>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer Section -->
+    <footer class="bg-[#3C3C3C] text-white mt-12 py-6">
+        <div class="container mx-auto px-6 text-center">
+            <p class="text-gray-300">&copy; 2024 Desa Kaliprau. Seluruh Hak Cipta Dilindungi.</p>
+            <p class="text-sm text-gray-400 mt-2">
+                Dibuat oleh Tim KKNT-160 Universitas Diponegoro 2025
+            </p>
+        </div>
+    </footer>
+
+
+    <script>
+        // Inisialisasi Lucide Icons
+        lucide.createIcons();
+
+        // Data Standar Antropometri Anak (Permenkes No. 2 Tahun 2020)
+        // Sumber: WHO Child Growth Standards
+        // Indikator: Panjang/Tinggi Badan menurut Umur (PB/U atau TB/U)
+        // Hanya data -3 SD dan -2 SD yang diperlukan untuk klasifikasi stunting.
+        // const zScoreData = {
+        //     laki: {
+        //         0: { sdMinus3: 44.2, sdMinus2: 46.1 }, 1: { sdMinus3: 48.9, sdMinus2: 50.8 }, 2: { sdMinus3: 52.4, sdMinus2: 54.4 },
+        //         3: { sdMinus3: 55.3, sdMinus2: 57.3 }, 4: { sdMinus3: 57.6, sdMinus2: 59.7 }, 5: { sdMinus3: 59.6, sdMinus2: 61.7 },
+        //         6: { sdMinus3: 61.2, sdMinus2: 63.3 }, 7: { sdMinus3: 62.7, sdMinus2: 64.8 }, 8: { sdMinus3: 64.0, sdMinus2: 66.2 },
+        //         9: { sdMinus3: 65.2, sdMinus2: 67.5 }, 10: { sdMinus3: 66.4, sdMinus2: 68.7 }, 11: { sdMinus3: 67.6, sdMinus2: 69.9 },
+        //         12: { sdMinus3: 68.6, sdMinus2: 71.0 }, 13: { sdMinus3: 69.6, sdMinus2: 72.1 }, 14: { sdMinus3: 70.6, sdMinus2: 73.1 },
+        //         15: { sdMinus3: 71.6, sdMinus2: 74.1 }, 16: { sdMinus3: 72.5, sdMinus2: 75.0 }, 17: { sdMinus3: 73.3, sdMinus2: 75.9 },
+        //         18: { sdMinus3: 74.2, sdMinus2: 76.9 }, 19: { sdMinus3: 75.0, sdMinus2: 77.8 }, 20: { sdMinus3: 75.8, sdMinus2: 78.6 },
+        //         21: { sdMinus3: 76.5, sdMinus2: 79.4 }, 22: { sdMinus3: 77.2, sdMinus2: 80.2 }, 23: { sdMinus3: 78.0, sdMinus2: 81.0 },
+        //         24: { sdMinus3: 78.6, sdMinus2: 81.7 }, 25: { sdMinus3: 79.3, sdMinus2: 82.4 }, 26: { sdMinus3: 79.9, sdMinus2: 83.1 },
+        //         27: { sdMinus3: 80.5, sdMinus2: 83.7 }, 28: { sdMinus3: 81.1, sdMinus2: 84.4 }, 29: { sdMinus3: 81.7, sdMinus2: 85.0 },
+        //         30: { sdMinus3: 82.3, sdMinus2: 85.6 }, 31: { sdMinus3: 82.8, sdMinus2: 86.2 }, 32: { sdMinus3: 83.4, sdMinus2: 86.8 },
+        //         33: { sdMinus3: 83.9, sdMinus2: 87.4 }, 34: { sdMinus3: 84.4, sdMinus2: 88.0 }, 35: { sdMinus3: 84.9, sdMinus2: 88.5 },
+        //         36: { sdMinus3: 85.4, sdMinus2: 89.1 }, 37: { sdMinus3: 85.9, sdMinus2: 89.6 }, 38: { sdMinus3: 86.4, sdMinus2: 90.2 },
+        //         39: { sdMinus3: 86.9, sdMinus2: 90.7 }, 40: { sdMinus3: 87.3, sdMinus2: 91.2 }, 41: { sdMinus3: 87.8, sdMinus2: 91.7 },
+        //         42: { sdMinus3: 88.2, sdMinus2: 92.2 }, 43: { sdMinus3: 88.7, sdMinus2: 92.7 }, 44: { sdMinus3: 89.1, sdMinus2: 93.2 },
+        //         45: { sdMinus3: 89.6, sdMinus2: 93.7 }, 46: { sdMinus3: 90.0, sdMinus2: 94.2 }, 47: { sdMinus3: 90.4, sdMinus2: 94.7 },
+        //         48: { sdMinus3: 90.9, sdMinus2: 95.2 }, 49: { sdMinus3: 91.3, sdMinus2: 95.7 }, 50: { sdMinus3: 91.7, sdMinus2: 96.1 },
+        //         51: { sdMinus3: 92.1, sdMinus2: 96.6 }, 52: { sdMinus3: 92.5, sdMinus2: 97.1 }, 53: { sdMinus3: 92.9, sdMinus2: 97.5 },
+        //         54: { sdMinus3: 93.3, sdMinus2: 98.0 }, 55: { sdMinus3: 93.7, sdMinus2: 98.4 }, 56: { sdMinus3: 94.1, sdMinus2: 98.9 },
+        //         57: { sdMinus3: 94.5, sdMinus2: 99.3 }, 58: { sdMinus3: 94.9, sdMinus2: 99.8 }, 59: { sdMinus3: 95.2, sdMinus2: 100.2 },
+        //         60: { sdMinus3: 95.6, sdMinus2: 100.7 }
+        //     },
+        //     perempuan: {
+        //         0: { sdMinus3: 43.6, sdMinus2: 45.4 }, 1: { sdMinus3: 47.8, sdMinus2: 49.8 }, 2: { sdMinus3: 51.0, sdMinus2: 53.0 },
+        //         3: { sdMinus3: 53.5, sdMinus2: 55.6 }, 4: { sdMinus3: 55.6, sdMinus2: 57.8 }, 5: { sdMinus3: 57.4, sdMinus2: 59.6 },
+        //         6: { sdMinus3: 58.9, sdMinus2: 61.2 }, 7: { sdMinus3: 60.3, sdMinus2: 62.7 }, 8: { sdMinus3: 61.7, sdMinus2: 64.0 },
+        //         9: { sdMinus3: 62.9, sdMinus2: 65.3 }, 10: { sdMinus3: 64.1, sdMinus2: 66.5 }, 11: { sdMinus3: 65.3, sdMinus2: 67.7 },
+        //         12: { sdMinus3: 66.4, sdMinus2: 68.9 }, 13: { sdMinus3: 67.5, sdMinus2: 70.0 }, 14: { sdMinus3: 68.6, sdMinus2: 71.1 },
+        //         15: { sdMinus3: 69.6, sdMinus2: 72.2 }, 16: { sdMinus3: 70.6, sdMinus2: 73.2 }, 17: { sdMinus3: 71.5, sdMinus2: 74.2 },
+        //         18: { sdMinus3: 72.5, sdMinus2: 75.2 }, 19: { sdMinus3: 73.4, sdMinus2: 76.2 }, 20: { sdMinus3: 74.3, sdMinus2: 77.1 },
+        //         21: { sdMinus3: 75.1, sdMinus2: 78.0 }, 22: { sdMinus3: 76.0, sdMinus2: 78.9 }, 23: { sdMinus3: 76.8, sdMinus2: 79.8 },
+        //         24: { sdMinus3: 77.5, sdMinus2: 80.7 }, 25: { sdMinus3: 78.3, sdMinus2: 81.5 }, 26: { sdMinus3: 79.0, sdMinus2: 82.3 },
+        //         27: { sdMinus3: 79.7, sdMinus2: 83.1 }, 28: { sdMinus3: 80.4, sdMinus2: 83.8 }, 29: { sdMinus3: 81.1, sdMinus2: 84.6 },
+        //         30: { sdMinus3: 81.7, sdMinus2: 85.3 }, 31: { sdMinus3: 82.4, sdMinus2: 86.0 }, 32: { sdMinus3: 83.0, sdMinus2: 86.7 },
+        //         33: { sdMinus3: 83.6, sdMinus2: 87.4 }, 34: { sdMinus3: 84.2, sdMinus2: 88.0 }, 35: { sdMinus3: 84.8, sdMinus2: 88.7 },
+        //         36: { sdMinus3: 85.4, sdMinus2: 89.3 }, 37: { sdMinus3: 86.0, sdMinus2: 89.9 }, 38: { sdMinus3: 86.5, sdMinus2: 90.5 },
+        //         39: { sdMinus3: 87.1, sdMinus2: 91.1 }, 40: { sdMinus3: 87.6, sdMinus2: 91.7 }, 41: { sdMinus3: 88.2, sdMinus2: 92.3 },
+        //         42: { sdMinus3: 88.7, sdMinus2: 92.9 }, 43: { sdMinus3: 89.3, sdMinus2: 93.4 }, 44: { sdMinus3: 89.8, sdMinus2: 94.0 },
+        //         45: { sdMinus3: 90.3, sdMinus2: 94.5 }, 46: { sdMinus3: 90.8, sdMinus2: 95.1 }, 47: { sdMinus3: 91.3, sdMinus2: 95.6 },
+        //         48: { sdMinus3: 91.8, sdMinus2: 96.1 }, 49: { sdMinus3: 92.3, sdMinus2: 96.7 }, 50: { sdMinus3: 92.8, sdMinus2: 97.2 },
+        //         51: { sdMinus3: 93.2, sdMinus2: 97.7 }, 52: { sdMinus3: 93.7, sdMinus2: 98.2 }, 53: { sdMinus3: 94.2, sdMinus2: 98.7 },
+        //         54: { sdMinus3: 94.6, sdMinus2: 99.2 }, 55: { sdMinus3: 95.1, sdMinus2: 99.7 }, 56: { sdMinus3: 95.5, sdMinus2: 100.2 },
+        //         57: { sdMinus3: 96.0, sdMinus2: 100.7 }, 58: { sdMinus3: 96.4, sdMinus2: 101.2 }, 59: { sdMinus3: 96.8, sdMinus2: 101.7 },
+        //         60: { sdMinus3: 97.3, sdMinus2: 102.2 }
+        //     }
+        // };
+        const zScoreData = {
+            laki: {
+                0: { sdMinus3: 44.2, sdMinus2: 46.1 }, 1: { sdMinus3: 48.9, sdMinus2: 50.8 }, 2: { sdMinus3: 52.4, sdMinus2: 54.4 },
+                3: { sdMinus3: 55.3, sdMinus2: 57.3 }, 4: { sdMinus3: 57.6, sdMinus2: 59.7 }, 5: { sdMinus3: 59.6, sdMinus2: 61.7 },
+                6: { sdMinus3: 61.2, sdMinus2: 63.3 }, 7: { sdMinus3: 62.7, sdMinus2: 64.8 }, 8: { sdMinus3: 64.0, sdMinus2: 66.2 },
+                9: { sdMinus3: 65.2, sdMinus2: 67.5 }, 10: { sdMinus3: 66.4, sdMinus2: 68.7 }, 11: { sdMinus3: 67.6, sdMinus2: 69.9 },
+                12: { sdMinus3: 68.6, sdMinus2: 71.0 }, 13: { sdMinus3: 69.6, sdMinus2: 72.1 }, 14: { sdMinus3: 70.6, sdMinus2: 73.1 },
+                15: { sdMinus3: 71.6, sdMinus2: 74.1 }, 16: { sdMinus3: 72.5, sdMinus2: 75.0 }, 17: { sdMinus3: 73.3, sdMinus2: 75.9 },
+                18: { sdMinus3: 74.2, sdMinus2: 76.9 }, 19: { sdMinus3: 75.0, sdMinus2: 77.8 }, 20: { sdMinus3: 75.8, sdMinus2: 78.6 },
+                21: { sdMinus3: 76.5, sdMinus2: 79.4 }, 22: { sdMinus3: 77.2, sdMinus2: 80.2 }, 23: { sdMinus3: 78.0, sdMinus2: 81.0 },
+                24: { sdMinus3: 78.7, sdMinus2: 82.1 }, 25: { sdMinus3: 79.3, sdMinus2: 82.8 }, 26: { sdMinus3: 79.9, sdMinus2: 83.6 },
+                27: { sdMinus3: 80.5, sdMinus2: 84.3 }, 28: { sdMinus3: 81.1, sdMinus2: 85.0 }, 29: { sdMinus3: 81.7, sdMinus2: 85.7 },
+                30: { sdMinus3: 82.3, sdMinus2: 86.3 }, 31: { sdMinus3: 82.8, sdMinus2: 87.0 }, 32: { sdMinus3: 83.4, sdMinus2: 87.6 },
+                33: { sdMinus3: 83.9, sdMinus2: 88.2 }, 34: { sdMinus3: 84.4, sdMinus2: 88.8 }, 35: { sdMinus3: 84.9, sdMinus2: 89.4 },
+                36: { sdMinus3: 85.4, sdMinus2: 90.0 }, 37: { sdMinus3: 85.9, sdMinus2: 90.6 }, 38: { sdMinus3: 86.4, sdMinus2: 91.1 },
+                39: { sdMinus3: 86.9, sdMinus2: 91.7 }, 40: { sdMinus3: 87.3, sdMinus2: 92.2 }, 41: { sdMinus3: 87.8, sdMinus2: 92.8 },
+                42: { sdMinus3: 88.2, sdMinus2: 93.3 }, 43: { sdMinus3: 88.7, sdMinus2: 93.9 }, 44: { sdMinus3: 89.1, sdMinus2: 94.4 },
+                45: { sdMinus3: 89.6, sdMinus2: 94.9 }, 46: { sdMinus3: 90.0, sdMinus2: 95.4 }, 47: { sdMinus3: 90.4, sdMinus2: 95.9 },
+                48: { sdMinus3: 90.9, sdMinus2: 96.4 }, 49: { sdMinus3: 91.3, sdMinus2: 96.9 }, 50: { sdMinus3: 91.7, sdMinus2: 97.4 },
+                51: { sdMinus3: 92.1, sdMinus2: 97.9 }, 52: { sdMinus3: 92.5, sdMinus2: 98.4 }, 53: { sdMinus3: 92.9, sdMinus2: 98.9 },
+                54: { sdMinus3: 93.3, sdMinus2: 99.4 }, 55: { sdMinus3: 93.7, sdMinus2: 99.9 }, 56: { sdMinus3: 94.1, sdMinus2: 100.4 },
+                57: { sdMinus3: 94.5, sdMinus2: 100.9 }, 58: { sdMinus3: 94.9, sdMinus2: 101.4 }, 59: { sdMinus3: 95.2, sdMinus2: 101.9 },
+                60: { sdMinus3: 95.6, sdMinus2: 102.3 }
+            },
+            perempuan: {
+                0: { sdMinus3: 43.6, sdMinus2: 45.4 }, 1: { sdMinus3: 47.8, sdMinus2: 49.8 }, 2: { sdMinus3: 51.0, sdMinus2: 53.0 },
+                3: { sdMinus3: 53.5, sdMinus2: 55.6 }, 4: { sdMinus3: 55.6, sdMinus2: 57.8 }, 5: { sdMinus3: 57.4, sdMinus2: 59.6 },
+                6: { sdMinus3: 58.9, sdMinus2: 61.2 }, 7: { sdMinus3: 60.3, sdMinus2: 62.7 }, 8: { sdMinus3: 61.7, sdMinus2: 64.0 },
+                9: { sdMinus3: 62.9, sdMinus2: 65.3 }, 10: { sdMinus3: 64.1, sdMinus2: 66.5 }, 11: { sdMinus3: 65.3, sdMinus2: 67.7 },
+                12: { sdMinus3: 66.4, sdMinus2: 68.9 }, 13: { sdMinus3: 67.5, sdMinus2: 70.0 }, 14: { sdMinus3: 68.6, sdMinus2: 71.1 },
+                15: { sdMinus3: 69.6, sdMinus2: 72.2 }, 16: { sdMinus3: 70.6, sdMinus2: 73.2 }, 17: { sdMinus3: 71.5, sdMinus2: 74.2 },
+                18: { sdMinus3: 72.5, sdMinus2: 75.2 }, 19: { sdMinus3: 73.4, sdMinus2: 76.2 }, 20: { sdMinus3: 74.3, sdMinus2: 77.1 },
+                21: { sdMinus3: 75.1, sdMinus2: 78.0 }, 22: { sdMinus3: 76.0, sdMinus2: 78.9 }, 23: { sdMinus3: 76.8, sdMinus2: 79.8 },
+                24: { sdMinus3: 76.0, sdMinus2: 79.3 }, 25: { sdMinus3: 76.8, sdMinus2: 80.0 }, 26: { sdMinus3: 77.5, sdMinus2: 80.8 },
+                27: { sdMinus3: 78.1, sdMinus2: 81.5 }, 28: { sdMinus3: 78.8, sdMinus2: 82.2 }, 29: { sdMinus3: 79.5, sdMinus2: 82.9 },
+                30: { sdMinus3: 80.1, sdMinus2: 83.6 }, 31: { sdMinus3: 80.7, sdMinus2: 84.3 }, 32: { sdMinus3: 81.3, sdMinus2: 84.9 },
+                33: { sdMinus3: 81.9, sdMinus2: 85.6 }, 34: { sdMinus3: 82.5, sdMinus2: 86.2 }, 35: { sdMinus3: 83.1, sdMinus2: 86.8 },
+                36: { sdMinus3: 83.6, sdMinus2: 87.4 }, 37: { sdMinus3: 84.2, sdMinus2: 88.0 }, 38: { sdMinus3: 84.7, sdMinus2: 88.6 },
+                39: { sdMinus3: 85.3, sdMinus2: 89.2 }, 40: { sdMinus3: 85.8, sdMinus2: 89.8 }, 41: { sdMinus3: 86.3, sdMinus2: 90.4 },
+                42: { sdMinus3: 86.8, sdMinus2: 90.9 }, 43: { sdMinus3: 87.4, sdMinus2: 91.5 }, 44: { sdMinus3: 87.9, sdMinus2: 92.0 },
+                45: { sdMinus3: 88.4, sdMinus2: 92.5 }, 46: { sdMinus3: 88.9, sdMinus2: 93.1 }, 47: { sdMinus3: 89.3, sdMinus2: 93.6 },
+                48: { sdMinus3: 89.8, sdMinus2: 94.1 }, 49: { sdMinus3: 90.3, sdMinus2: 94.6 }, 50: { sdMinus3: 90.7, sdMinus2: 95.1 },
+                51: { sdMinus3: 91.2, sdMinus2: 95.6 }, 52: { sdMinus3: 91.7, sdMinus2: 96.1 }, 53: { sdMinus3: 92.1, sdMinus2: 96.6 },
+                54: { sdMinus3: 92.6, sdMinus2: 97.1 }, 55: { sdMinus3: 93.0, sdMinus2: 97.6 }, 56: { sdMinus3: 93.4, sdMinus2: 98.1 },
+                57: { sdMinus3: 93.9, sdMinus2: 98.5 }, 58: { sdMinus3: 94.3, sdMinus2: 99.0 }, 59: { sdMinus3: 94.7, sdMinus2: 99.5 },
+                60: { sdMinus3: 95.2, sdMinus2: 99.9 }
+            }
+        };
+
+        const form = document.getElementById('stunting-form');
+        const hasilContainer = document.getElementById('hasil-container');
+        const hasilContent = document.getElementById('hasil-content');
+        const resetButton = document.getElementById('reset-button');
+        
+        // Elemen input dan peringatan
+        const usiaInput = document.getElementById('usia');
+        const genderInput = document.getElementById('gender');
+        const tinggiInput = document.getElementById('tinggi');
+        
+        const warningUsia = document.getElementById('warning-usia');
+        const warningGender = document.getElementById('warning-gender');
+        const warningTinggi = document.getElementById('warning-tinggi');
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // Sembunyikan semua peringatan & hapus border error sebelum validasi
+            warningUsia.classList.add('hidden');
+            warningGender.classList.add('hidden');
+            warningTinggi.classList.add('hidden');
+            usiaInput.classList.remove('input-error');
+            genderInput.classList.remove('input-error');
+            tinggiInput.classList.remove('input-error');
+
+            let isValid = true;
+
+            const nama = document.getElementById('nama').value || 'Anak';
+            const usia = parseInt(usiaInput.value);
+            const gender = genderInput.value;
+            const tinggi = parseFloat(tinggiInput.value);
+
+            // Validasi Usia
+            if (isNaN(usia) || usiaInput.value === '') {
+                warningUsia.textContent = 'Usia harus diisi.';
+                warningUsia.classList.remove('hidden');
+                usiaInput.classList.add('input-error');
+                isValid = false;
+            } else if (usia < 0 || usia > 60) {
+                warningUsia.textContent = 'Usia harus antara 0 - 60 bulan.';
+                warningUsia.classList.remove('hidden');
+                usiaInput.classList.add('input-error');
+                isValid = false;
+            }
+
+            // Validasi Jenis Kelamin
+            if (!gender) {
+                warningGender.classList.remove('hidden');
+                genderInput.classList.add('input-error');
+                isValid = false;
+            }
+
+            // Validasi Tinggi Badan
+            if (isNaN(tinggi) || tinggiInput.value === '') {
+                warningTinggi.classList.remove('hidden');
+                tinggiInput.classList.add('input-error');
+                isValid = false;
+            }
+
+            // Jika tidak valid, hentikan proses
+            if (!isValid) {
+                return;
+            }
+
+            const standar = zScoreData[gender][usia];
+            let status = '';
+            let statusColor = '';
+            let statusIcon = '';
+            let rekomendasi = '';
+
+            if (tinggi < standar.sdMinus3) {
+                status = 'Sangat Pendek (Severely Stunted)';
+                statusColor = 'text-red-600';
+                statusIcon = 'alert-triangle';
+                rekomendasi = 'Segera konsultasikan dengan Bidan Desa atau Dokter Anak untuk pemeriksaan dan intervensi gizi lebih lanjut.';
+            } else if (tinggi < standar.sdMinus2) {
+                status = 'Pendek (Stunted)';
+                statusColor = 'text-yellow-600';
+                statusIcon = 'alert-circle';
+                rekomendasi = 'Perlu perhatian khusus pada asupan gizi. Disarankan untuk berkonsultasi dengan petugas gizi atau Posyandu untuk pemantauan.';
+            } else {
+                status = 'Normal';
+                statusColor = 'text-green-600';
+                statusIcon = 'check-circle';
+                rekomendasi = 'Pertumbuhan tinggi badan anak baik. Terus berikan gizi seimbang dan pantau pertumbuhannya setiap bulan di Posyandu.';
+            }
+
+            hasilContent.innerHTML = `
+                <p class="text-lg mb-2">Hasil untuk <strong>${nama}</strong>:</p>
+                <div class="p-4 rounded-lg border ${statusColor.replace('text-', 'border-').replace('-600', '-300')} ${statusColor.replace('text-', 'bg-').replace('-600', '-50')}">
+                    <i data-lucide="${statusIcon}" class="h-16 w-16 mx-auto ${statusColor} mb-3"></i>
+                    <p class="text-xl font-bold ${statusColor}">${status}</p>
+                    <p class="text-sm text-gray-600 mt-1">(Tinggi: ${tinggi} cm | Usia: ${usia} bulan)</p>
+                </div>
+                <div class="mt-4 text-left p-4 bg-gray-100 rounded-lg">
+                    <h4 class="font-bold text-gray-800">Rekomendasi:</h4>
+                    <p class="text-gray-700">${rekomendasi}</p>
+                </div>
+            `;
+            
+            // Perbarui ikon setelah konten baru ditambahkan
+            lucide.createIcons();
+
+            hasilContainer.classList.remove('hidden');
+            form.parentElement.classList.add('hidden'); // Sembunyikan div pembungkus form
+        });
+
+        resetButton.addEventListener('click', function() {
+            form.reset();
+            hasilContainer.classList.add('hidden');
+            form.parentElement.classList.remove('hidden'); // Tampilkan kembali div pembungkus form
+
+            // Sembunyikan juga semua pesan error
+            warningUsia.classList.add('hidden');
+            warningGender.classList.add('hidden');
+            warningTinggi.classList.add('hidden');
+            usiaInput.classList.remove('input-error');
+            genderInput.classList.remove('input-error');
+            tinggiInput.classList.remove('input-error');
+        });
+
+    </script>
+</body>
+</html>
