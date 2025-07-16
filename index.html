@@ -69,7 +69,7 @@
                         <div>
                             <label for="usia" class="block text-sm font-semibold text-gray-700 mb-2">Usia (Bulan)</label>
                             <input type="number" id="usia" min="0" max="60" class="form-input w-full px-4 py-2 rounded-lg" placeholder="0 - 60" required>
-                            <p id="warning-usia" class="text-red-500 text-sm mt-1 hidden">Pilih kendaraan terlebih dahulu!</p>
+                            <p id="warning-usia" class="text-red-500 text-sm mt-1 hidden">Usia harus diisi!</p>
                         </div>
 
                         <!-- Jenis Kelamin -->
@@ -80,15 +80,15 @@
                                 <option value="laki">Laki-laki</option>
                                 <option value="perempuan">Perempuan</option>
                             </select>
-                            <p id="warning-gender" class="text-red-500 text-sm mt-1 hidden">Pilih kendaraan terlebih dahulu!</p>
+                            <p id="warning-gender" class="text-red-500 text-sm mt-1 hidden">Jenis Kelamin harus diisi!</p>
                         </div>
 
                         <!-- Tinggi Badan -->
                         <div>
                             <label for="tinggi" class="block text-sm font-semibold text-gray-700 mb-2">Tinggi / Panjang Badan (cm)</label>
                             <input type="number" step="0.1" id="tinggi" min="0" class="form-input w-full px-4 py-2 rounded-lg" placeholder="Contoh: 75.5" required>
+                             <p id="warning-tinggi" class="text-red-500 text-sm mt-1 hidden">Tinggi Badan harus diisi!</p>
                         </div>
-                        <p id="warning-tinggi" class="text-red-500 text-sm mt-1 hidden">Pilih kendaraan terlebih dahulu!</p>
                     </div>
 
                     <!-- Tombol Hitung -->
@@ -121,11 +121,21 @@
     </main>
 
     <!-- Footer Section -->
-    <footer class="bg-[#3C3C3C] text-white mt-12 py-6">
+    <!-- <footer class="bg-[#3C3C3C] text-white mt-12 py-6">
         <div class="container mx-auto px-6 text-center">
             <p class="text-gray-300">&copy; 2024 Desa Kaliprau. Seluruh Hak Cipta Dilindungi.</p>
             <p class="text-sm text-gray-400 mt-2">
                 Dibuat oleh Tim KKNT-160 Universitas Diponegoro 2025
+            </p>
+        </div>
+    </footer> -->
+    <footer class="bg-[#3C3C3C] text-white mt-12 py-6">
+        <div class="container mx-auto px-6 text-center">
+            <!-- <p class="text-gray-300">Dibuat dengan </p> -->
+             <p class="text-sm text-gray-400 mt-2 flex items-center justify-center space-x-1.5">
+                <span>Dibuat dengan</span>
+                <i data-lucide="heart" class="h-4 w-4 text-red-500 fill-current"></i>
+                <span>oleh Tim KKN-T 160 Universitas Diponegoro 2025</span>
             </p>
         </div>
     </footer>
@@ -250,6 +260,28 @@
         const warningGender = document.getElementById('warning-gender');
         const warningTinggi = document.getElementById('warning-tinggi');
 
+        // Fungsi untuk menyembunyikan peringatan saat pengguna mulai mengetik/memilih
+        usiaInput.addEventListener('input', () => {
+            if (usiaInput.value !== '') {
+                warningUsia.classList.add('hidden');
+                usiaInput.classList.remove('input-error');
+            }
+        });
+
+        genderInput.addEventListener('change', () => {
+            if (genderInput.value !== '') {
+                warningGender.classList.add('hidden');
+                genderInput.classList.remove('input-error');
+            }
+        });
+
+        tinggiInput.addEventListener('input', () => {
+            if (tinggiInput.value !== '') {
+                warningTinggi.classList.add('hidden');
+                tinggiInput.classList.remove('input-error');
+            }
+        });
+
         form.addEventListener('submit', function(e) {
             e.preventDefault();
 
@@ -270,7 +302,7 @@
 
             // Validasi Usia
             if (isNaN(usia) || usiaInput.value === '') {
-                warningUsia.textContent = 'Usia harus diisi.';
+                // warningUsia.textContent = 'Usia harus diisi.';
                 warningUsia.classList.remove('hidden');
                 usiaInput.classList.add('input-error');
                 isValid = false;
